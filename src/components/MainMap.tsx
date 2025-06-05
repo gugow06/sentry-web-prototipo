@@ -79,25 +79,25 @@ export function MainMap({ selectedShelter, setSelectedShelter }: MainMapProps) {
   };
 
   return (
-    <div className="h-full flex flex-col bg-gray-100">
+    <div className="h-full flex flex-col bg-slate-100">
       {/* Map Header */}
       <div className="p-4 bg-white border-b">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-800">Mapa Interativo</h2>
+          <h2 className="text-lg font-semibold text-slate-800">Mapa Interativo</h2>
           <div className="flex items-center space-x-2">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-sm text-gray-600">GPS Ativo</span>
+            <span className="text-sm text-slate-600">GPS Ativo</span>
           </div>
         </div>
       </div>
 
       {/* Simulated Map Area */}
-      <div className="flex-1 relative bg-gradient-to-br from-blue-100 via-green-50 to-blue-50">
+      <div className="flex-1 relative bg-gradient-to-br from-blue-100 via-slate-50 to-blue-100">
         {/* User Location */}
         {userLocation && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
-            <div className="w-4 h-4 bg-blue-600 rounded-full border-2 border-white shadow-lg animate-pulse"></div>
-            <div className="text-xs bg-blue-600 text-white px-2 py-1 rounded mt-1">Você está aqui</div>
+            <div className="w-4 h-4 bg-blue-900 rounded-full border-2 border-white shadow-lg animate-pulse"></div>
+            <div className="text-xs bg-blue-900 text-white px-2 py-1 rounded mt-1">Você está aqui</div>
           </div>
         )}
 
@@ -165,17 +165,17 @@ export function MainMap({ selectedShelter, setSelectedShelter }: MainMapProps) {
             
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
-                <span className="text-sm text-gray-600">Capacidade:</span>
+                <span className="text-sm text-slate-600">Capacidade:</span>
                 <p className="font-medium">{selectedShelter.capacity} pessoas</p>
               </div>
               <div>
-                <span className="text-sm text-gray-600">Disponível:</span>
+                <span className="text-sm text-slate-600">Disponível:</span>
                 <p className="font-medium">{selectedShelter.capacity - Math.floor(selectedShelter.capacity * selectedShelter.occupancy / 100)} vagas</p>
               </div>
             </div>
 
             <div className="mb-4">
-              <span className="text-sm text-gray-600 block mb-2">Recursos disponíveis:</span>
+              <span className="text-sm text-slate-600 block mb-2">Recursos disponíveis:</span>
               <div className="flex space-x-4 text-sm">
                 <span className={selectedShelter.resources.water ? 'text-green-600' : 'text-red-600'}>
                   💧 Água
@@ -194,7 +194,7 @@ export function MainMap({ selectedShelter, setSelectedShelter }: MainMapProps) {
 
             <Button 
               onClick={() => calculateRoute(selectedShelter)}
-              className="w-full bg-gradient-to-r from-blue-500 to-green-500 text-white"
+              className="w-full bg-gradient-to-r from-blue-900 to-blue-600 hover:from-blue-800 hover:to-blue-500 text-white"
             >
               <Navigation className="w-4 h-4 mr-2" />
               Traçar Rota Segura
