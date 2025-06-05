@@ -5,6 +5,7 @@ import { MainMap } from '@/components/MainMap';
 import { ShelterList } from '@/components/ShelterList';
 import { AlertsPanel } from '@/components/AlertsPanel';
 import { DashboardStats } from '@/components/DashboardStats';
+import { AdminPanel } from '@/components/AdminPanel';
 import { SidebarProvider } from "@/components/ui/sidebar";
 
 const Index = () => {
@@ -21,14 +22,14 @@ const Index = () => {
           <header className="bg-white shadow-sm border-b p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-900 to-blue-600 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-r from-slate-800 to-slate-600 rounded-lg flex items-center justify-center">
                   <img 
                     src="/lovable-uploads/f954020a-6c6b-4c7e-a785-c813ae279b07.png" 
                     alt="Sentry Logo" 
                     className="w-8 h-8 object-contain"
                   />
                 </div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-900 to-blue-600 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
                   Sentry
                 </h1>
                 <span className="text-sm text-gray-500 hidden md:block">
@@ -65,6 +66,12 @@ const Index = () => {
             {activeView === 'dashboard' && (
               <div className="flex-1 p-6">
                 <DashboardStats />
+              </div>
+            )}
+
+            {activeView === 'admin' && (
+              <div className="flex-1">
+                <AdminPanel />
               </div>
             )}
           </div>
