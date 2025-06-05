@@ -69,8 +69,8 @@ export function MainMap({ selectedShelter, setSelectedShelter }: MainMapProps) {
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
 
   useEffect(() => {
-    // Simular localização do usuário na região central de São Paulo
-    setUserLocation({ lat: -23.5489, lng: -46.6388 });
+    // Simular localização do usuário em São Paulo
+    setUserLocation({ lat: -23.5505, lng: -46.6333 });
   }, []);
 
   const calculateRoute = (shelter: Shelter) => {
@@ -83,7 +83,7 @@ export function MainMap({ selectedShelter, setSelectedShelter }: MainMapProps) {
       {/* Map Header */}
       <div className="p-4 bg-white border-b">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-800">Mapa de São Paulo</h2>
+          <h2 className="text-lg font-semibold text-slate-800">Mapa Interativo</h2>
           <div className="flex items-center space-x-2">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
             <span className="text-sm text-slate-600">GPS Ativo</span>
@@ -91,98 +91,45 @@ export function MainMap({ selectedShelter, setSelectedShelter }: MainMapProps) {
         </div>
       </div>
 
-      {/* Simulated São Paulo Map Area */}
-      <div className="flex-1 relative bg-gradient-to-br from-gray-200 via-gray-100 to-gray-200 overflow-hidden">
-        {/* Simulated streets and city blocks */}
-        <div className="absolute inset-0">
-          {/* Main avenues - horizontal */}
-          <div className="absolute top-1/4 left-0 right-0 h-2 bg-gray-400 opacity-60"></div>
-          <div className="absolute top-1/2 left-0 right-0 h-3 bg-gray-500 opacity-80"></div>
-          <div className="absolute top-3/4 left-0 right-0 h-2 bg-gray-400 opacity-60"></div>
-
-          {/* Main avenues - vertical */}
-          <div className="absolute top-0 bottom-0 left-1/4 w-2 bg-gray-400 opacity-60"></div>
-          <div className="absolute top-0 bottom-0 left-1/2 w-3 bg-gray-500 opacity-80"></div>
-          <div className="absolute top-0 bottom-0 right-1/4 w-2 bg-gray-400 opacity-60"></div>
-
-          {/* Secondary streets */}
-          <div className="absolute top-1/3 left-0 right-0 h-1 bg-gray-300 opacity-40"></div>
-          <div className="absolute top-2/3 left-0 right-0 h-1 bg-gray-300 opacity-40"></div>
-          <div className="absolute top-0 bottom-0 left-1/3 w-1 bg-gray-300 opacity-40"></div>
-          <div className="absolute top-0 bottom-0 right-1/3 w-1 bg-gray-300 opacity-40"></div>
-
-          {/* City blocks */}
-          <div className="absolute top-10 left-10 w-20 h-16 bg-gray-300 opacity-30 rounded-sm"></div>
-          <div className="absolute top-32 left-32 w-24 h-20 bg-gray-300 opacity-30 rounded-sm"></div>
-          <div className="absolute top-20 right-20 w-28 h-18 bg-gray-300 opacity-30 rounded-sm"></div>
-          <div className="absolute bottom-20 left-20 w-22 h-16 bg-gray-300 opacity-30 rounded-sm"></div>
-          <div className="absolute bottom-32 right-32 w-26 h-22 bg-gray-300 opacity-30 rounded-sm"></div>
-
-          {/* Parks/Green areas */}
-          <div className="absolute top-16 left-1/2 w-32 h-24 bg-green-200 opacity-50 rounded-lg"></div>
-          <div className="absolute bottom-24 right-16 w-28 h-20 bg-green-200 opacity-50 rounded-lg"></div>
-        </div>
-
+      {/* Simulated Map Area */}
+      <div className="flex-1 relative bg-gradient-to-br from-blue-100 via-slate-50 to-blue-100">
         {/* User Location */}
         {userLocation && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
-            <div className="w-4 h-4 bg-slate-800 rounded-full border-2 border-white shadow-lg animate-pulse"></div>
-            <div className="text-xs bg-slate-800 text-white px-2 py-1 rounded mt-1 whitespace-nowrap">
-              Você está aqui
-            </div>
+            <div className="w-4 h-4 bg-blue-900 rounded-full border-2 border-white shadow-lg animate-pulse"></div>
+            <div className="text-xs bg-blue-900 text-white px-2 py-1 rounded mt-1">Você está aqui</div>
           </div>
         )}
 
-        {/* Shelters on Map - positioned like real São Paulo locations */}
-        <div className="absolute top-[45%] left-[48%] transform -translate-x-1/2 -translate-y-1/2 z-10 cursor-pointer"
-             onClick={() => setSelectedShelter(shelters[0])}>
-          <div className={`w-6 h-6 ${getOccupancyColor(shelters[0].occupancy)} rounded-full border-2 border-white shadow-lg flex items-center justify-center`}>
-            <MapPin className="w-3 h-3 text-white" />
+        {/* Shelters on Map */}
+        {shelters.map((shelter, index) => (
+          <div
+            key={shelter.id}
+            className={`absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-10`}
+            style={{
+              top: `${40 + index * 15}%`,
+              left: `${35 + index * 20}%`
+            }}
+            onClick={() => setSelectedShelter(shelter)}
+          >
+            <div className={`w-6 h-6 ${getOccupancyColor(shelter.occupancy)} rounded-full border-2 border-white shadow-lg flex items-center justify-center`}>
+              <MapPin className="w-3 h-3 text-white" />
+            </div>
+            <div className="text-xs bg-white px-2 py-1 rounded shadow-md mt-1 min-w-max">
+              {shelter.name}
+            </div>
           </div>
-          <div className="text-xs bg-white px-2 py-1 rounded shadow-md mt-1 min-w-max">
-            {shelters[0].name}
-          </div>
-        </div>
+        ))}
 
-        <div className="absolute top-[38%] left-[52%] transform -translate-x-1/2 -translate-y-1/2 z-10 cursor-pointer"
-             onClick={() => setSelectedShelter(shelters[1])}>
-          <div className={`w-6 h-6 ${getOccupancyColor(shelters[1].occupancy)} rounded-full border-2 border-white shadow-lg flex items-center justify-center`}>
-            <MapPin className="w-3 h-3 text-white" />
-          </div>
-          <div className="text-xs bg-white px-2 py-1 rounded shadow-md mt-1 min-w-max">
-            {shelters[1].name}
-          </div>
-        </div>
-
-        <div className="absolute top-[55%] left-[55%] transform -translate-x-1/2 -translate-y-1/2 z-10 cursor-pointer"
-             onClick={() => setSelectedShelter(shelters[2])}>
-          <div className={`w-6 h-6 ${getOccupancyColor(shelters[2].occupancy)} rounded-full border-2 border-white shadow-lg flex items-center justify-center`}>
-            <MapPin className="w-3 h-3 text-white" />
-          </div>
-          <div className="text-xs bg-white px-2 py-1 rounded shadow-md mt-1 min-w-max">
-            {shelters[2].name}
-          </div>
-        </div>
-
-        {/* Risk Areas - positioned in different areas of the city */}
-        <div className="absolute top-[25%] right-[25%] w-32 h-32 bg-red-200 rounded-full opacity-60 border-2 border-red-400">
+        {/* Risk Areas */}
+        <div className="absolute top-20 right-20 w-32 h-32 bg-red-200 rounded-full opacity-50 border-2 border-red-400">
           <div className="flex items-center justify-center h-full">
             <AlertTriangle className="w-8 h-8 text-red-600" />
           </div>
         </div>
 
-        <div className="absolute bottom-[20%] left-[20%] w-24 h-24 bg-orange-200 rounded-full opacity-50 border-2 border-orange-400">
-          <div className="flex items-center justify-center h-full">
-            <AlertTriangle className="w-6 h-6 text-orange-600" />
-          </div>
-        </div>
-
-        {/* São Paulo landmarks indicators */}
-        <div className="absolute top-[35%] left-[45%] w-3 h-3 bg-blue-600 rounded-full"></div>
-        <div className="text-xs absolute top-[37%] left-[45%] bg-blue-600 text-white px-1 rounded text-center">Centro</div>
-
         {/* Legend */}
-        <div className="absolute bottom-4 left-4 bg-white p-3 rounded-lg shadow-lg max-w-xs">
+        <div className="absolute bottom-4 left-4 bg-white p-3 rounded-lg shadow-lg">
           <h3 className="text-sm font-semibold mb-2">Legenda</h3>
           <div className="space-y-1 text-xs">
             <div className="flex items-center space-x-2">
@@ -200,10 +147,6 @@ export function MainMap({ selectedShelter, setSelectedShelter }: MainMapProps) {
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 bg-red-500 rounded-full"></div>
               <span>Lotado (91-100%)</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <AlertTriangle className="w-3 h-3 text-red-600" />
-              <span>Área de Risco</span>
             </div>
           </div>
         </div>
@@ -251,7 +194,7 @@ export function MainMap({ selectedShelter, setSelectedShelter }: MainMapProps) {
 
             <Button 
               onClick={() => calculateRoute(selectedShelter)}
-              className="w-full bg-gradient-to-r from-slate-800 to-slate-600 hover:from-slate-700 hover:to-slate-500 text-white"
+              className="w-full bg-gradient-to-r from-blue-900 to-blue-600 hover:from-blue-800 hover:to-blue-500 text-white"
             >
               <Navigation className="w-4 h-4 mr-2" />
               Traçar Rota Segura

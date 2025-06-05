@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -104,7 +105,7 @@ const getSeverityColor = (severity: string) => {
 
 export function DashboardStats() {
   return (
-    <div className="space-y-6 max-w-full overflow-hidden">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -118,34 +119,36 @@ export function DashboardStats() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => {
           const IconComponent = stat.icon;
           return (
-            <Card key={index} className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center space-x-2">
-                  <div className="p-2 bg-gradient-to-r from-slate-800 to-slate-600 rounded-lg">
-                    <IconComponent className="w-5 h-5 text-white" />
+            <Card key={index} className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-gradient-to-r from-blue-500 to-green-500 rounded-lg">
+                    <IconComponent className="w-6 h-6 text-white" />
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xl font-bold text-gray-800 truncate">{stat.value}</p>
-                    <p className="text-xs text-gray-600 truncate">{stat.title}</p>
+                  <div>
+                    <p className="text-2xl font-bold text-gray-800">{stat.value}</p>
+                    <p className="text-sm text-gray-600">{stat.title}</p>
                   </div>
                 </div>
-                <Badge
-                  className={
-                    stat.changeType === 'positive'
-                      ? 'bg-green-100 text-green-800 text-xs'
-                      : stat.changeType === 'negative'
-                      ? 'bg-red-100 text-red-800 text-xs'
-                      : 'bg-gray-100 text-gray-800 text-xs'
-                  }
-                >
-                  {stat.change}
-                </Badge>
+                <div className="text-right">
+                  <Badge
+                    className={
+                      stat.changeType === 'positive'
+                        ? 'bg-green-100 text-green-800'
+                        : stat.changeType === 'negative'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }
+                  >
+                    {stat.change}
+                  </Badge>
+                </div>
               </div>
-              <p className="text-xs text-gray-500 truncate">{stat.description}</p>
+              <p className="text-xs text-gray-500 mt-2">{stat.description}</p>
             </Card>
           );
         })}
@@ -153,14 +156,14 @@ export function DashboardStats() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Occupancy Chart */}
-        <Card className="p-4">
+        <Card className="p-6">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">Ocupação dos Abrigos</h3>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {occupancyData.map((shelter, index) => (
               <div key={index} className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700 truncate pr-2">{shelter.name}</span>
-                  <span className="text-sm text-gray-600 flex-shrink-0">{shelter.occupancy}%</span>
+                  <span className="text-sm font-medium text-gray-700">{shelter.name}</span>
+                  <span className="text-sm text-gray-600">{shelter.occupancy}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
@@ -169,8 +172,8 @@ export function DashboardStats() {
                   ></div>
                 </div>
                 <div className="flex items-center justify-between text-xs text-gray-500">
-                  <span className="truncate">{Math.floor((shelter.occupancy / 100) * shelter.capacity)} / {shelter.capacity} pessoas</span>
-                  <Badge className={shelter.status === 'open' ? 'bg-green-100 text-green-800 text-xs' : 'bg-red-100 text-red-800 text-xs'}>
+                  <span>{Math.floor((shelter.occupancy / 100) * shelter.capacity)} / {shelter.capacity} pessoas</span>
+                  <Badge className={shelter.status === 'open' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
                     {shelter.status === 'open' ? 'Aberto' : 'Lotado'}
                   </Badge>
                 </div>
@@ -180,12 +183,12 @@ export function DashboardStats() {
         </Card>
 
         {/* Recent Activities */}
-        <Card className="p-4">
+        <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-800">Atividades Recentes</h3>
             <Activity className="w-5 h-5 text-gray-500" />
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {recentActivities.map((activity) => (
               <div key={activity.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
                 <div className="flex-shrink-0">
@@ -198,7 +201,7 @@ export function DashboardStats() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-800 break-words">{activity.message}</p>
+                  <p className="text-sm text-gray-800">{activity.message}</p>
                   <div className="flex items-center justify-between mt-1">
                     <div className="flex items-center text-xs text-gray-500">
                       <Clock className="w-3 h-3 mr-1" />
@@ -217,11 +220,11 @@ export function DashboardStats() {
       </div>
 
       {/* Risk Map Summary */}
-      <Card className="p-4">
+      <Card className="p-6">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">Resumo das Áreas de Risco</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-red-50 p-4 rounded-lg border border-red-200">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between">
               <div>
                 <h4 className="font-semibold text-red-800">Alto Risco</h4>
                 <p className="text-sm text-red-600">2 áreas</p>
@@ -230,13 +233,13 @@ export function DashboardStats() {
                 <MapPin className="w-4 h-4 text-white" />
               </div>
             </div>
-            <div className="text-xs text-red-700 break-words">
+            <div className="mt-2 text-xs text-red-700">
               Vila Esperança, Rua das Palmeiras
             </div>
           </div>
 
           <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between">
               <div>
                 <h4 className="font-semibold text-orange-800">Médio Risco</h4>
                 <p className="text-sm text-orange-600">3 áreas</p>
@@ -245,13 +248,13 @@ export function DashboardStats() {
                 <MapPin className="w-4 h-4 text-white" />
               </div>
             </div>
-            <div className="text-xs text-orange-700 break-words">
+            <div className="mt-2 text-xs text-orange-700">
               Serra Verde, Bairro Alto, Centro
             </div>
           </div>
 
           <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between">
               <div>
                 <h4 className="font-semibold text-yellow-800">Baixo Risco</h4>
                 <p className="text-sm text-yellow-600">2 áreas</p>
@@ -260,7 +263,7 @@ export function DashboardStats() {
                 <MapPin className="w-4 h-4 text-white" />
               </div>
             </div>
-            <div className="text-xs text-yellow-700 break-words">
+            <div className="mt-2 text-xs text-yellow-700">
               Vila Nova, Jardim Florido
             </div>
           </div>
