@@ -33,17 +33,23 @@ const menuItems = [
     title: 'Dashboard',
     icon: BarChart3,
     description: 'Estatísticas e análises'
+  },
+  {
+    id: 'admin',
+    title: 'Administração',
+    icon: Shield,
+    description: 'Painel administrativo'
   }
 ];
 
 export function Sidebar({ activeView, setActiveView }: SidebarProps) {
   return (
-    <SidebarPrimitive className="border-r">
-      <div className="p-4 border-b">
-        <SidebarTrigger />
+    <SidebarPrimitive className="border-r bg-white">
+      <div className="p-4 border-b bg-white">
+        <SidebarTrigger className="text-gray-600 hover:text-gray-800" />
       </div>
       
-      <SidebarContent>
+      <SidebarContent className="bg-white">
         <div className="p-4">
           <h2 className="text-lg font-semibold mb-4 text-gray-800">Navegação</h2>
           <SidebarMenu>
@@ -51,16 +57,18 @@ export function Sidebar({ activeView, setActiveView }: SidebarProps) {
               <SidebarMenuItem key={item.id}>
                 <SidebarMenuButton 
                   onClick={() => setActiveView(item.id)}
-                  className={`w-full justify-start p-3 rounded-lg transition-all ${
+                  className={`w-full justify-start p-3 rounded-lg transition-all mb-2 ${
                     activeView === item.id 
-                      ? 'bg-gradient-to-r from-blue-500 to-green-500 text-white shadow-lg' 
-                      : 'hover:bg-gray-100'
+                      ? 'bg-slate-800 text-white shadow-lg hover:bg-slate-700' 
+                      : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
                   }`}
                 >
-                  <item.icon className="w-5 h-5 mr-3" />
-                  <div className="text-left">
-                    <div className="font-medium">{item.title}</div>
-                    <div className={`text-xs ${activeView === item.id ? 'text-white/80' : 'text-gray-500'}`}>
+                  <item.icon className="w-5 h-5 mr-3 flex-shrink-0" />
+                  <div className="text-left flex-1 min-w-0">
+                    <div className="font-medium text-sm truncate">{item.title}</div>
+                    <div className={`text-xs truncate ${
+                      activeView === item.id ? 'text-white/80' : 'text-gray-500'
+                    }`}>
                       {item.description}
                     </div>
                   </div>
@@ -71,16 +79,16 @@ export function Sidebar({ activeView, setActiveView }: SidebarProps) {
         </div>
 
         {/* Emergency Status */}
-        <div className="p-4 border-t mt-auto">
+        <div className="p-4 border-t mt-auto bg-white">
           <div className="bg-gradient-to-r from-red-50 to-orange-50 p-3 rounded-lg border border-red-200">
             <div className="flex items-center space-x-2 mb-2">
-              <AlertTriangle className="w-4 h-4 text-red-500" />
+              <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
               <span className="text-sm font-medium text-red-700">Status de Emergência</span>
             </div>
             <div className="text-xs text-red-600">
-              <div className="flex justify-between">
-                <span>Baixo Risco</span>
-                <span className="font-medium">🟢</span>
+              <div className="flex justify-between items-center">
+                <span className="truncate">Baixo Risco</span>
+                <span className="font-medium flex-shrink-0">🟢</span>
               </div>
             </div>
           </div>
