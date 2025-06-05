@@ -1,217 +1,205 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Navigation, MapPin, Route } from 'lucide-react';
+import { MapPin, Navigation, AlertTriangle } from 'lucide-react';
 
-// Mock data for shelters
-const shelters = [
-  {
-    id: 1,
-    name: 'Abrigo Central Vila Esperança',
-    coordinates: [-46.6333, -23.5505],
-    capacity: 200,
-    occupied: 85,
-    status: 'open',
-    resources: { water: 'good', food: 'medium', medical: 'good', power: 'good' }
-  },
-  {
-    id: 2,
-    name: 'Escola Municipal Santos Dumont',
-    coordinates: [-46.6423, -23.5605],
-    capacity: 150,
-    occupied: 130,
-    status: 'nearly_full',
-    resources: { water: 'good', food: 'low', medical: 'medium', power: 'good' }
-  },
-  {
-    id: 3,
-    name: 'Centro Comunitário São José',
-    coordinates: [-46.6233, -23.5405],
-    capacity: 100,
-    occupied: 100,
-    status: 'full',
-    resources: { water: 'medium', food: 'low', medical: 'low', power: 'medium' }
-  }
-];
+interface Shelter {
+  id: number;
+  name: string;
+  lat: number;
+  lng: number;
+  occupancy: number;
+  status: 'open' | 'full' | 'closed';
+  capacity: number;
+  resources: {
+    water: boolean;
+    food: boolean;
+    medical: boolean;
+    power: boolean;
+  };
+}
 
 interface MainMapProps {
   selectedShelter: any;
   setSelectedShelter: (shelter: any) => void;
 }
 
-const getStatusColor = (occupied: number, capacity: number) => {
-  const percentage = (occupied / capacity) * 100;
-  if (percentage <= 50) return '#10B981'; // green
-  if (percentage <= 75) return '#F59E0B'; // yellow
-  if (percentage <= 90) return '#F97316'; // orange
-  return '#EF4444'; // red
-};
+const shelters: Shelter[] = [
+  {
+    id: 1,
+    name: 'Abrigo Central',
+    lat: -23.5505,
+    lng: -46.6333,
+    occupancy: 45,
+    status: 'open',
+    capacity: 200,
+    resources: { water: true, food: true, medical: true, power: true }
+  },
+  {
+    id: 2,
+    name: 'Escola Municipal',
+    lat: -23.5489,
+    lng: -46.6388,
+    occupancy: 78,
+    status: 'open',
+    capacity: 150,
+    resources: { water: true, food: false, medical: true, power: true }
+  },
+  {
+    id: 3,
+    name: 'Centro Comunitário',
+    lat: -23.5556,
+    lng: -46.6396,
+    occupancy: 92,
+    status: 'full',
+    capacity: 100,
+    resources: { water: true, food: true, medical: false, power: false }
+  }
+];
 
-const getStatusText = (occupied: number, capacity: number) => {
-  const percentage = (occupied / capacity) * 100;
-  if (percentage <= 50) return 'Disponível';
-  if (percentage <= 75) return 'Ocupação Média';
-  if (percentage <= 90) return 'Alta Ocupação';
-  return 'Lotado';
+const getOccupancyColor = (occupancy: number) => {
+  if (occupancy <= 50) return 'bg-green-500';
+  if (occupancy <= 75) return 'bg-yellow-500';
+  if (occupancy <= 90) return 'bg-orange-500';
+  return 'bg-red-500';
 };
 
 export function MainMap({ selectedShelter, setSelectedShelter }: MainMapProps) {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const [mapToken, setMapToken] = useState('');
+  const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
 
   useEffect(() => {
-    if (!mapContainer.current) return;
+    // Simular localização do usuário em São Paulo
+    setUserLocation({ lat: -23.5505, lng: -46.6333 });
+  }, []);
 
-    // For demo purposes, using a placeholder token
-    const token = 'pk.eyJ1IjoibG92YWJsZS1kZW1vIiwiYSI6ImNseDJhY2ExZjBhMG0ya3F6dGp4NmZvbXoifQ.demo_token';
-    
-    if (!token) {
-      return;
-    }
-
-    mapboxgl.accessToken = token;
-    
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/light-v11',
-      center: [-46.6333, -23.5505], // São Paulo
-      zoom: 12
-    });
-
-    // Add navigation controls
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
-
-    // Add markers for shelters
-    shelters.forEach(shelter => {
-      const percentage = (shelter.occupied / shelter.capacity) * 100;
-      const color = getStatusColor(shelter.occupied, shelter.capacity);
-      
-      // Create custom marker
-      const el = document.createElement('div');
-      el.className = 'shelter-marker';
-      el.style.cssText = `
-        width: 30px;
-        height: 30px;
-        background-color: ${color};
-        border: 2px solid white;
-        border-radius: 50%;
-        cursor: pointer;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px;
-        color: white;
-        font-weight: bold;
-      `;
-      el.innerHTML = '🏠';
-
-      const popup = new mapboxgl.Popup({
-        offset: 25,
-        closeButton: false
-      }).setHTML(`
-        <div class="p-3">
-          <h3 class="font-bold text-sm mb-2">${shelter.name}</h3>
-          <div class="text-xs space-y-1">
-            <div class="flex justify-between">
-              <span>Ocupação:</span>
-              <span class="font-medium">${shelter.occupied}/${shelter.capacity}</span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-2">
-              <div class="h-2 rounded-full" style="width: ${percentage}%; background-color: ${color}"></div>
-            </div>
-            <div class="text-xs font-medium" style="color: ${color}">
-              ${getStatusText(shelter.occupied, shelter.capacity)}
-            </div>
-          </div>
-        </div>
-      `);
-
-      new mapboxgl.Marker(el)
-        .setLngLat(shelter.coordinates as [number, number])
-        .setPopup(popup)
-        .addTo(map.current!);
-
-      el.addEventListener('click', () => {
-        setSelectedShelter(shelter);
-      });
-    });
-
-    return () => {
-      map.current?.remove();
-    };
-  }, [setSelectedShelter]);
-
-  if (!mapboxgl.accessToken) {
-    return (
-      <div className="flex-1 flex items-center justify-center bg-gray-100">
-        <div className="text-center p-8">
-          <MapPin className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-600 mb-2">Mapa Indisponível</h3>
-          <p className="text-gray-500 mb-4">
-            Para visualizar o mapa interativo, é necessário configurar uma chave de API do Mapbox.
-          </p>
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-left">
-            <p className="text-sm text-yellow-800">
-              <strong>Para demonstração:</strong> O mapa mostraria abrigos com indicadores de status:
-            </p>
-            <ul className="text-sm text-yellow-700 mt-2 space-y-1">
-              <li>🟢 Disponível (até 50% ocupado)</li>
-              <li>🟡 Ocupação média (51-75%)</li>
-              <li>🟠 Alta ocupação (76-90%)</li>
-              <li>🔴 Lotado (91-100%)</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const calculateRoute = (shelter: Shelter) => {
+    console.log(`Calculando rota para ${shelter.name}`);
+    // Aqui integraria com API de mapas para calcular rota segura
+  };
 
   return (
-    <div className="relative flex-1">
-      <div ref={mapContainer} className="absolute inset-0" />
-      
-      {/* Map Controls */}
-      <div className="absolute top-4 left-4 space-y-2">
-        <Button className="bg-white text-gray-700 hover:bg-gray-50 shadow-lg">
-          <Navigation className="w-4 h-4 mr-2" />
-          Minha Localização
-        </Button>
-      </div>
-
-      {/* Legend */}
-      <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg p-4">
-        <h4 className="font-semibold text-sm mb-2">Status dos Abrigos</h4>
-        <div className="space-y-1 text-xs">
+    <div className="h-full flex flex-col bg-gray-100">
+      {/* Map Header */}
+      <div className="p-4 bg-white border-b">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-800">Mapa Interativo</h2>
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            <span>Disponível (até 50%)</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-            <span>Ocupação Média (51-75%)</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-            <span>Alta Ocupação (76-90%)</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-            <span>Lotado (91-100%)</span>
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-sm text-gray-600">GPS Ativo</span>
           </div>
         </div>
       </div>
 
-      {/* Route Button */}
+      {/* Simulated Map Area */}
+      <div className="flex-1 relative bg-gradient-to-br from-blue-100 via-green-50 to-blue-50">
+        {/* User Location */}
+        {userLocation && (
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
+            <div className="w-4 h-4 bg-blue-600 rounded-full border-2 border-white shadow-lg animate-pulse"></div>
+            <div className="text-xs bg-blue-600 text-white px-2 py-1 rounded mt-1">Você está aqui</div>
+          </div>
+        )}
+
+        {/* Shelters on Map */}
+        {shelters.map((shelter, index) => (
+          <div
+            key={shelter.id}
+            className={`absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-10`}
+            style={{
+              top: `${40 + index * 15}%`,
+              left: `${35 + index * 20}%`
+            }}
+            onClick={() => setSelectedShelter(shelter)}
+          >
+            <div className={`w-6 h-6 ${getOccupancyColor(shelter.occupancy)} rounded-full border-2 border-white shadow-lg flex items-center justify-center`}>
+              <MapPin className="w-3 h-3 text-white" />
+            </div>
+            <div className="text-xs bg-white px-2 py-1 rounded shadow-md mt-1 min-w-max">
+              {shelter.name}
+            </div>
+          </div>
+        ))}
+
+        {/* Risk Areas */}
+        <div className="absolute top-20 right-20 w-32 h-32 bg-red-200 rounded-full opacity-50 border-2 border-red-400">
+          <div className="flex items-center justify-center h-full">
+            <AlertTriangle className="w-8 h-8 text-red-600" />
+          </div>
+        </div>
+
+        {/* Legend */}
+        <div className="absolute bottom-4 left-4 bg-white p-3 rounded-lg shadow-lg">
+          <h3 className="text-sm font-semibold mb-2">Legenda</h3>
+          <div className="space-y-1 text-xs">
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              <span>Livre (até 50%)</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+              <span>Médio (51-75%)</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+              <span>Alto (76-90%)</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+              <span>Lotado (91-100%)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Selected Shelter Info */}
       {selectedShelter && (
-        <div className="absolute bottom-4 right-4">
-          <Button className="bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600 shadow-lg">
-            <Route className="w-4 h-4 mr-2" />
-            Traçar Rota Segura
-          </Button>
+        <div className="p-4 bg-white border-t">
+          <Card className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold text-lg">{selectedShelter.name}</h3>
+              <div className={`px-2 py-1 rounded text-xs text-white ${getOccupancyColor(selectedShelter.occupancy)}`}>
+                {selectedShelter.occupancy}% ocupado
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <span className="text-sm text-gray-600">Capacidade:</span>
+                <p className="font-medium">{selectedShelter.capacity} pessoas</p>
+              </div>
+              <div>
+                <span className="text-sm text-gray-600">Disponível:</span>
+                <p className="font-medium">{selectedShelter.capacity - Math.floor(selectedShelter.capacity * selectedShelter.occupancy / 100)} vagas</p>
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <span className="text-sm text-gray-600 block mb-2">Recursos disponíveis:</span>
+              <div className="flex space-x-4 text-sm">
+                <span className={selectedShelter.resources.water ? 'text-green-600' : 'text-red-600'}>
+                  💧 Água
+                </span>
+                <span className={selectedShelter.resources.food ? 'text-green-600' : 'text-red-600'}>
+                  🍞 Alimentos
+                </span>
+                <span className={selectedShelter.resources.medical ? 'text-green-600' : 'text-red-600'}>
+                  🏥 Médico
+                </span>
+                <span className={selectedShelter.resources.power ? 'text-green-600' : 'text-red-600'}>
+                  🔌 Energia
+                </span>
+              </div>
+            </div>
+
+            <Button 
+              onClick={() => calculateRoute(selectedShelter)}
+              className="w-full bg-gradient-to-r from-blue-500 to-green-500 text-white"
+            >
+              <Navigation className="w-4 h-4 mr-2" />
+              Traçar Rota Segura
+            </Button>
+          </Card>
         </div>
       )}
     </div>

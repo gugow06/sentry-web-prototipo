@@ -1,151 +1,169 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { 
   Search, 
   MapPin, 
+  Navigation, 
   Users, 
   Droplets, 
   Utensils, 
   Heart, 
   Zap,
-  Navigation,
   Filter
 } from 'lucide-react';
 
-const shelters = [
-  {
-    id: 1,
-    name: 'Abrigo Central Vila Esperança',
-    address: 'Rua das Flores, 123 - Vila Esperança',
-    distance: '1.2 km',
-    capacity: 200,
-    occupied: 85,
-    status: 'open',
-    resources: { water: 'good', food: 'medium', medical: 'good', power: 'good' },
-    lastUpdate: '5 min'
-  },
-  {
-    id: 2,
-    name: 'Escola Municipal Santos Dumont',
-    address: 'Av. Educação, 456 - Centro',
-    distance: '2.8 km',
-    capacity: 150,
-    occupied: 130,
-    status: 'nearly_full',
-    resources: { water: 'good', food: 'low', medical: 'medium', power: 'good' },
-    lastUpdate: '2 min'
-  },
-  {
-    id: 3,
-    name: 'Centro Comunitário São José',
-    address: 'Praça da Comunidade, 789 - São José',
-    distance: '3.5 km',
-    capacity: 100,
-    occupied: 100,
-    status: 'full',
-    resources: { water: 'medium', food: 'low', medical: 'low', power: 'medium' },
-    lastUpdate: '1 min'
-  },
-  {
-    id: 4,
-    name: 'Igreja Nossa Senhora da Paz',
-    address: 'Rua da Igreja, 321 - Jardim Paz',
-    distance: '4.1 km',
-    capacity: 80,
-    occupied: 25,
-    status: 'open',
-    resources: { water: 'good', food: 'good', medical: 'medium', power: 'good' },
-    lastUpdate: '3 min'
-  },
-  {
-    id: 5,
-    name: 'Ginásio Municipal Esportes',
-    address: 'Av. dos Esportes, 654 - Vila Olímpica',
-    distance: '5.2 km',
-    capacity: 300,
-    occupied: 180,
-    status: 'open',
-    resources: { water: 'good', food: 'good', medical: 'good', power: 'good' },
-    lastUpdate: '7 min'
-  }
-];
+interface Shelter {
+  id: number;
+  name: string;
+  address: string;
+  distance: number;
+  occupancy: number;
+  status: 'open' | 'full' | 'closed';
+  capacity: number;
+  resources: {
+    water: boolean;
+    food: boolean;
+    medical: boolean;
+    power: boolean;
+  };
+  lastUpdate: string;
+}
 
 interface ShelterListProps {
   selectedShelter: any;
   setSelectedShelter: (shelter: any) => void;
 }
 
-const getStatusColor = (occupied: number, capacity: number) => {
-  const percentage = (occupied / capacity) * 100;
-  if (percentage <= 50) return 'bg-green-500';
-  if (percentage <= 75) return 'bg-yellow-500';
-  if (percentage <= 90) return 'bg-orange-500';
-  return 'bg-red-500';
+const sheltersData: Shelter[] = [
+  {
+    id: 1,
+    name: 'Abrigo Central',
+    address: 'Rua das Flores, 123 - Centro',
+    distance: 0.8,
+    occupancy: 45,
+    status: 'open',
+    capacity: 200,
+    resources: { water: true, food: true, medical: true, power: true },
+    lastUpdate: '15:30'
+  },
+  {
+    id: 2,
+    name: 'Escola Municipal São José',
+    address: 'Av. Principal, 456 - Vila Esperança',
+    distance: 1.2,
+    occupancy: 78,
+    status: 'open',
+    capacity: 150,
+    resources: { water: true, food: false, medical: true, power: true },
+    lastUpdate: '15:25'
+  },
+  {
+    id: 3,
+    name: 'Centro Comunitário Norte',
+    address: 'Rua do Norte, 789 - Bairro Alto',
+    distance: 2.1,
+    occupancy: 92,
+    status: 'full',
+    capacity: 100,
+    resources: { water: true, food: true, medical: false, power: false },
+    lastUpdate: '15:20'
+  },
+  {
+    id: 4,
+    name: 'Ginásio Municipal',
+    address: 'Av. dos Esportes, 321 - Centro',
+    distance: 1.5,
+    occupancy: 23,
+    status: 'open',
+    capacity: 300,
+    resources: { water: true, food: true, medical: true, power: true },
+    lastUpdate: '15:28'
+  },
+  {
+    id: 5,
+    name: 'Igreja São Pedro',
+    address: 'Rua da Igreja, 654 - Vila Nova',
+    distance: 3.2,
+    occupancy: 67,
+    status: 'open',
+    capacity: 80,
+    resources: { water: false, food: true, medical: false, power: true },
+    lastUpdate: '15:15'
+  }
+];
+
+const getOccupancyColor = (occupancy: number) => {
+  if (occupancy <= 50) return 'bg-green-100 text-green-800 border-green-200';
+  if (occupancy <= 75) return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+  if (occupancy <= 90) return 'bg-orange-100 text-orange-800 border-orange-200';
+  return 'bg-red-100 text-red-800 border-red-200';
 };
 
-const getStatusText = (occupied: number, capacity: number) => {
-  const percentage = (occupied / capacity) * 100;
-  if (percentage <= 50) return 'Disponível';
-  if (percentage <= 75) return 'Ocupação Média';
-  if (percentage <= 90) return 'Alta Ocupação';
-  return 'Lotado';
-};
-
-const getResourceIcon = (resource: string) => {
-  switch (resource) {
-    case 'water': return <Droplets className="w-4 h-4" />;
-    case 'food': return <Utensils className="w-4 h-4" />;
-    case 'medical': return <Heart className="w-4 h-4" />;
-    case 'power': return <Zap className="w-4 h-4" />;
-    default: return null;
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'open': return 'bg-green-500';
+    case 'full': return 'bg-red-500';
+    case 'closed': return 'bg-gray-500';
+    default: return 'bg-gray-500';
   }
 };
 
-const getResourceColor = (level: string) => {
-  switch (level) {
-    case 'good': return 'text-green-600';
-    case 'medium': return 'text-yellow-600';
-    case 'low': return 'text-red-600';
-    default: return 'text-gray-600';
+const getStatusText = (status: string) => {
+  switch (status) {
+    case 'open': return 'Aberto';
+    case 'full': return 'Lotado';
+    case 'closed': return 'Fechado';
+    default: return 'Desconhecido';
   }
 };
 
 export function ShelterList({ selectedShelter, setSelectedShelter }: ShelterListProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
+  const [sortBy, setSortBy] = useState<'distance' | 'occupancy' | 'capacity'>('distance');
+  const [showOnlyAvailable, setShowOnlyAvailable] = useState(false);
 
-  const filteredShelters = shelters.filter(shelter => {
-    const matchesSearch = shelter.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         shelter.address.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    if (filterStatus === 'available') {
-      return matchesSearch && (shelter.occupied / shelter.capacity) < 0.9;
+  const filteredAndSortedShelters = useMemo(() => {
+    let filtered = sheltersData.filter(shelter =>
+      shelter.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      shelter.address.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    if (showOnlyAvailable) {
+      filtered = filtered.filter(shelter => shelter.status === 'open' && shelter.occupancy < 90);
     }
-    
-    return matchesSearch;
-  });
+
+    return filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'distance':
+          return a.distance - b.distance;
+        case 'occupancy':
+          return a.occupancy - b.occupancy;
+        case 'capacity':
+          return b.capacity - a.capacity;
+        default:
+          return 0;
+      }
+    });
+  }, [searchTerm, sortBy, showOnlyAvailable]);
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="h-full flex flex-col bg-gray-50">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">Lista de Abrigos</h2>
-          <p className="text-gray-600">
-            {filteredShelters.length} abrigos encontrados
-          </p>
+      <div className="p-4 bg-white border-b space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-800">Lista de Abrigos</h2>
+          <Badge className="bg-blue-100 text-blue-800">
+            {filteredAndSortedShelters.length} abrigos
+          </Badge>
         </div>
-      </div>
 
-      {/* Search and Filter */}
-      <div className="flex space-x-4">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
             placeholder="Buscar por nome ou endereço..."
             value={searchTerm}
@@ -153,98 +171,115 @@ export function ShelterList({ selectedShelter, setSelectedShelter }: ShelterList
             className="pl-10"
           />
         </div>
-        <Button
-          variant={filterStatus === 'available' ? 'default' : 'outline'}
-          onClick={() => setFilterStatus(filterStatus === 'available' ? 'all' : 'available')}
-        >
-          <Filter className="w-4 h-4 mr-2" />
-          Apenas Disponíveis
-        </Button>
+
+        {/* Filters */}
+        <div className="flex items-center justify-between space-x-2">
+          <div className="flex items-center space-x-2">
+            <Filter className="w-4 h-4 text-gray-500" />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="text-sm border rounded px-2 py-1"
+            >
+              <option value="distance">Ordenar por distância</option>
+              <option value="occupancy">Ordenar por ocupação</option>
+              <option value="capacity">Ordenar por capacidade</option>
+            </select>
+          </div>
+          <label className="flex items-center space-x-2 text-sm">
+            <input
+              type="checkbox"
+              checked={showOnlyAvailable}
+              onChange={(e) => setShowOnlyAvailable(e.target.checked)}
+              className="rounded"
+            />
+            <span>Apenas disponíveis</span>
+          </label>
+        </div>
       </div>
 
-      {/* Shelter Cards */}
-      <div className="grid gap-4">
-        {filteredShelters.map((shelter) => {
-          const percentage = (shelter.occupied / shelter.capacity) * 100;
-          const statusColor = getStatusColor(shelter.occupied, shelter.capacity);
-          const statusText = getStatusText(shelter.occupied, shelter.capacity);
+      {/* Shelters List */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {filteredAndSortedShelters.map((shelter) => (
+          <Card
+            key={shelter.id}
+            className={`p-4 cursor-pointer transition-all hover:shadow-md ${
+              selectedShelter?.id === shelter.id ? 'ring-2 ring-blue-500 bg-blue-50' : ''
+            }`}
+            onClick={() => setSelectedShelter(shelter)}
+          >
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg text-gray-800">{shelter.name}</h3>
+                <div className="flex items-center text-sm text-gray-600 mt-1">
+                  <MapPin className="w-3 h-3 mr-1" />
+                  {shelter.address}
+                </div>
+                <div className="text-sm text-gray-500 mt-1">
+                  {shelter.distance} km de distância
+                </div>
+              </div>
+              <div className="flex flex-col items-end space-y-2">
+                <div className={`w-3 h-3 rounded-full ${getStatusColor(shelter.status)}`}></div>
+                <Badge className={getOccupancyColor(shelter.occupancy)}>
+                  {shelter.occupancy}% ocupado
+                </Badge>
+              </div>
+            </div>
 
-          return (
-            <Card 
-              key={shelter.id} 
-              className={`p-6 cursor-pointer transition-all hover:shadow-lg ${
-                selectedShelter?.id === shelter.id ? 'ring-2 ring-blue-500 shadow-lg' : ''
-              }`}
-              onClick={() => setSelectedShelter(shelter)}
+            {/* Status and Capacity */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center space-x-4 text-sm">
+                <div className="flex items-center space-x-1">
+                  <Users className="w-4 h-4 text-gray-500" />
+                  <span>{shelter.capacity - Math.floor(shelter.capacity * shelter.occupancy / 100)} vagas</span>
+                </div>
+                <span className="text-gray-500">Status: {getStatusText(shelter.status)}</span>
+              </div>
+              <span className="text-xs text-gray-400">Atualizado às {shelter.lastUpdate}</span>
+            </div>
+
+            {/* Resources */}
+            <div className="mb-4">
+              <span className="text-sm text-gray-600 block mb-2">Recursos disponíveis:</span>
+              <div className="flex space-x-3">
+                <div className={`flex items-center space-x-1 ${shelter.resources.water ? 'text-green-600' : 'text-red-600'}`}>
+                  <Droplets className="w-4 h-4" />
+                  <span className="text-xs">Água</span>
+                </div>
+                <div className={`flex items-center space-x-1 ${shelter.resources.food ? 'text-green-600' : 'text-red-600'}`}>
+                  <Utensils className="w-4 h-4" />
+                  <span className="text-xs">Alimentos</span>
+                </div>
+                <div className={`flex items-center space-x-1 ${shelter.resources.medical ? 'text-green-600' : 'text-red-600'}`}>
+                  <Heart className="w-4 h-4" />
+                  <span className="text-xs">Médico</span>
+                </div>
+                <div className={`flex items-center space-x-1 ${shelter.resources.power ? 'text-green-600' : 'text-red-600'}`}>
+                  <Zap className="w-4 h-4" />
+                  <span className="text-xs">Energia</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Button */}
+            <Button 
+              size="sm" 
+              className="w-full bg-gradient-to-r from-blue-500 to-green-500 text-white hover:from-blue-600 hover:to-green-600"
+              disabled={shelter.status === 'closed'}
             >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-3 mb-2">
-                    <h3 className="text-lg font-semibold text-gray-800">{shelter.name}</h3>
-                    <Badge className={`${statusColor} text-white`}>
-                      {statusText}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600 mb-1">
-                    <MapPin className="w-4 h-4 mr-1" />
-                    {shelter.address}
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    📍 {shelter.distance} • Atualizado há {shelter.lastUpdate}
-                  </div>
-                </div>
-              </div>
+              <Navigation className="w-4 h-4 mr-2" />
+              Ir para este abrigo
+            </Button>
+          </Card>
+        ))}
 
-              {/* Occupancy */}
-              <div className="mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center space-x-2">
-                    <Users className="w-4 h-4 text-gray-600" />
-                    <span className="text-sm font-medium">Ocupação</span>
-                  </div>
-                  <span className="text-sm font-medium">
-                    {shelter.occupied}/{shelter.capacity} pessoas
-                  </span>
-                </div>
-                <Progress value={percentage} className="h-2" />
-                <div className="text-xs text-gray-500 mt-1">
-                  {percentage.toFixed(1)}% ocupado
-                </div>
-              </div>
-
-              {/* Resources */}
-              <div className="mb-4">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Recursos Disponíveis</h4>
-                <div className="grid grid-cols-4 gap-3">
-                  {Object.entries(shelter.resources).map(([resource, level]) => (
-                    <div key={resource} className="text-center">
-                      <div className={`flex justify-center mb-1 ${getResourceColor(level)}`}>
-                        {getResourceIcon(resource)}
-                      </div>
-                      <div className={`text-xs font-medium ${getResourceColor(level)}`}>
-                        {level === 'good' ? 'Bom' : level === 'medium' ? 'Médio' : 'Baixo'}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex space-x-2">
-                <Button 
-                  className="flex-1 bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600"
-                  disabled={percentage >= 100}
-                >
-                  <Navigation className="w-4 h-4 mr-2" />
-                  Traçar Rota Segura
-                </Button>
-                <Button variant="outline" size="sm">
-                  Mais Info
-                </Button>
-              </div>
-            </Card>
-          );
-        })}
+        {filteredAndSortedShelters.length === 0 && (
+          <div className="text-center py-8">
+            <div className="text-gray-500 mb-2">Nenhum abrigo encontrado</div>
+            <div className="text-sm text-gray-400">Tente ajustar os filtros de busca</div>
+          </div>
+        )}
       </div>
     </div>
   );
