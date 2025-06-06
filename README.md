@@ -2,13 +2,18 @@
 # 🚨 Sentry - Sistema Inteligente de Prevenção de Desastres
 
 <div align="center">
-  <img src="public/lovable-uploads/f954020a-6c6b-4c7e-a785-c813ae279b07.png" alt="Sentry Logo" width="120" height="120">
+  <img src="public/lovable-uploads/f954020a-6c6b-4c7e-a785-c813ae279b07.png" alt="Sentry Logo" width="150" height="150">
   
   ![Status](https://img.shields.io/badge/status-active-success.svg)
   ![React](https://img.shields.io/badge/React-18.3.1-blue.svg)
   ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)
   ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 </div>
+
+## 👥 Desenvolvedores:
+
+Desenvolvido por dois alunos da FIAP (Faculdade de Informática e Administração Paulista), Gustavo Cristiano Pessoa de Souza (RM: 551924) e Ricardo Akira Kato Lopes (RM: 551447). 
+Caso queira um ver o vídeo de explicação do projeto, [Clique aqui!](https://youtu.be/AlsV7yg-RDY)
 
 ## 📋 Sobre o Projeto
 
@@ -203,20 +208,6 @@ Contribuições são sempre bem-vindas! Para contribuir:
 ## 📄 Licença
 
 Este projeto está licenciado sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
-
-## 📞 Contato e Suporte
-
-- **Repositório**: [GitHub](https://github.com/seu-usuario/sentry)
-- **Issues**: [Reportar bugs ou sugerir features](https://github.com/seu-usuario/sentry/issues)
-- **Documentação**: [Wiki do projeto](https://github.com/seu-usuario/sentry/wiki)
-
-## 🙏 Agradecimentos
-
-- Comunidade React e TypeScript
-- Contribuidores do Shadcn/UI
-- Equipe do Tailwind CSS
-- Mapbox por fornecer APIs de mapas
-- Todos os contribuidores do projeto
 
 ---
 
